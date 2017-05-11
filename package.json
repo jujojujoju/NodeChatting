@@ -1,23 +1,17 @@
 {
-  "name": "chat",
-  "version": "1.0.0",
-  "description": "chatting programming",
-  "main": "index.js",
+  "name": "nodechat",
+  "version": "0.0.0",
+  "private": true,
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node ./bin/www"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/jujojujoju/NodeChat.git"
-  },
-  "author": "joju",
-  "license": "ISC",
-  "bugs": {
-    "url": "https://github.com/jujojujoju/NodeChat/issues"
-  },
-  "homepage": "https://github.com/jujojujoju/NodeChat#readme",
   "dependencies": {
-    "express": "^4.15.2",
-    "socket.io": "^2.0.1"
+    "body-parser": "~1.17.1",
+    "cookie-parser": "~1.4.3",
+    "debug": "~2.6.3",
+    "ejs": "~2.5.6",
+    "express": "~4.15.2",
+    "morgan": "~1.8.1",
+    "serve-favicon": "~2.4.2"
   }
 }

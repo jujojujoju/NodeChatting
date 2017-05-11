@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
+
+
+<link href="./bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet">
+
+<head>
+    <title><%= title %></title>
+    <!--<style>-->
+        <!--* { margin: 0; padding: 0; box-sizing: border-box; }-->
+        <!--body { font: 13px Helvetica, Arial; }-->
+        <!--form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }-->
+        <!--form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }-->
+        <!--form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }-->
+        <!--#messages { list-style-type: none; margin: 0; padding: 0; }-->
+        <!--#messages li { padding: 5px 10px; }-->
+        <!--#messages li:nth-child(odd) { background: #eee; }-->
+    <!--</style>-->
+</head>
+<body>
+
+<div class="board">
+
+    <form id="login" name="login" class="form-horizontal" action="login" method="post">
+
+
+        <div id="id_form_group" class="form-group">
+            <label class="col-md-3 control-label">닉네임</label>
+
+            <div class="col-md-8">
+                <input style="margin-left:10%; width:80%;" type="text" class="form-control" tabindex="1"
+                       id="user_id" name='user_id' placeholder="ID">
+            </div>
+
+            <br><br>
+            <!--<div class="help-block" id='message_id' style="text-align:center;"><br></div>-->
+        </div>
+
+
+        <!--<div id="password_form_group" class="form-group">-->
+            <!--<label class="col-md-3 control-label">비밀번호</label>-->
+            <!--<div class="col-md-8">-->
+                <!--<input type="password" tabindex="2"class="form-control" style="margin-left : 10%; width: 80%;"-->
+                       <!--id='user_pw' name='user_pw'  placeholder="Password">-->
+            <!--</div><br><br>-->
+            <!--<div class="help-block" id='message_pass' style="text-align:center;"><br></div>-->
+        <!--</div>-->
+
+        <div style="padding-left : 40%;" class="form-group">
+            <div class="col-sm-offset-2 col-sm-10">
+                <input type="submit" id="login" tabindex='3' value='로그인' class="btn btn-default">
+            </div>
+        </div>
+
+    </form>
+
+</div>
+
+</body>
+</html>
