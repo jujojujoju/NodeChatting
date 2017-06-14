@@ -1,63 +1,65 @@
 <!doctype html>
 <html>
 
-<script src="/socket.io/socket.io.js"></script>
-<script src="http://code.jquery.com/jquery-1.11.1.js"></script>
-
-
+<script src="/socket.io.js"></script>
+<script src="/jquery-1.11.1.js"></script>
+<script src="/bootstrap-3.3.7-dist/js/bootstrap.js"></script>
 <link href="./bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet">
 
 <head>
     <title><%= title %></title>
-    <!--<style>-->
-        <!--* { margin: 0; padding: 0; box-sizing: border-box; }-->
-        <!--body { font: 13px Helvetica, Arial; }-->
-        <!--form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }-->
-        <!--form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }-->
-        <!--form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }-->
-        <!--#messages { list-style-type: none; margin: 0; padding: 0; }-->
-        <!--#messages li { padding: 5px 10px; }-->
-        <!--#messages li:nth-child(odd) { background: #eee; }-->
-    <!--</style>-->
+
+    <style>
+
+        /*form {width: 50%; margin:20% 30%; vertical-align: middle;position: fixed;}*/
+
+        #formform {width: 300px; margin:0 auto; vertical-align: middle;position: fixed;}
+
+    </style>
+
 </head>
 <body>
 
-<div class="board">
-
-    <form id="login" name="login" class="form-horizontal" action="login" method="post">
-
-
-        <div id="id_form_group" class="form-group">
-            <label class="col-md-3 control-label">닉네임</label>
-
-            <div class="col-md-8">
-                <input style="margin-left:10%; width:80%;" type="text" class="form-control" tabindex="1"
-                       id="user_id" name='user_id' placeholder="ID">
-            </div>
-
-            <br><br>
-            <!--<div class="help-block" id='message_id' style="text-align:center;"><br></div>-->
-        </div>
-
-
-        <!--<div id="password_form_group" class="form-group">-->
-            <!--<label class="col-md-3 control-label">비밀번호</label>-->
-            <!--<div class="col-md-8">-->
-                <!--<input type="password" tabindex="2"class="form-control" style="margin-left : 10%; width: 80%;"-->
-                       <!--id='user_pw' name='user_pw'  placeholder="Password">-->
-            <!--</div><br><br>-->
-            <!--<div class="help-block" id='message_pass' style="text-align:center;"><br></div>-->
-        <!--</div>-->
-
-        <div style="padding-left : 40%;" class="form-group">
-            <div class="col-sm-offset-2 col-sm-10">
-                <input type="submit" id="login" tabindex='3' value='로그인' class="btn btn-default">
+<div class="container">
+    <div class="row" style="margin-top:300px;">
+        <div class="col-lg-3"></div>
+        <div class="col-lg-6">
+            <div>
+                키워드와 이름을 입력해주세요<br>
             </div>
         </div>
-
-    </form>
-
+    </div>
+    <div class="row">
+        <div class="col-lg-3"></div>
+        <div class="col-lg-6">
+            <form id="loginForm" method="get" action="/chat">
+                <input style="padding: 10px; width: 80%;" name="keyWord" id="keyWord" placeholder="keyWord"/>
+                <input style="padding: 10px; width: 80%;" name="username" id="username" placeholder="username"/>
+                <br>
+                <button style="margin-top:10%; margin-left: 35%; padding : 10px"
+                        id="login" class="btn btn-default">login</button>
+            </form>
+        </div>
+    </div>
 </div>
+
+
+<script>
+
+    <% if (login_fail) { %>
+    alert("중복된 닉네임이 존재합니다.");
+    <% } %>
+
+    $(function () {
+
+        $('#loginForm').submit(function() {
+            if($('#keyWord').val() == '' || $('#username').val() == '')
+                return false;
+        });
+
+    });
+
+</script>
 
 </body>
 </html>

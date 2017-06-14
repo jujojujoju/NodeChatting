@@ -8,43 +8,100 @@ var app = require('../app');
 var debug = require('debug')('nodechat:server');
 var http = require('http');
 var socketio = require('socket.io');
+var mongoose = require('mongoose');
 
 /**
  * Get port from environment and store in Express.
  */
-
 var port = normalizePort(process.env.PORT || '9000');
 app.set('port', port);
 
 /**
  * Create HTTP server.
  */
-
 var server = http.createServer(app);
 
 /**
  * Listen on provided port, on all network interfaces.
  */
-
 server.listen(port);
 server.on('error', onError);
 server.on('listening', onListening);
 
-var io = socketio.listen(server);
+/* Model 선언 */
+var TestModel = mongoose.model("users");
 
-io.on('connection', function(socket){
+var io = socketio.listen(server);
+io.on('connection', function (socket) {
     console.log('a user connected');
-    socket.on('disconnect', function() {
+    var room_id;
+    var roomListObj;
+
+    socket.on('joinRoom', function (data, name) {
+        room_id = data;
+
+        // db에 닉네임이 존재하면 접속 거부, 없으면 db추가
+        socket.nick = name;
+
+        socket.join(room_id); //룸입장
+
+        console.log('JOIN ROOM LIST', io.sockets.adapter.rooms);
+
+        var availableRooms = [];
+        var clientNumList = [];
+        var rooms = io.sockets.adapter.rooms;
+
+        if (rooms) {
+            for (var room in rooms) {
+                if (room !== socket.id && (room + "").length < 10) {
+                    availableRooms.push(room);
+                    clientNumList.push(rooms[room].length);
+                }
+            }
+        }
+
+        roomListObj = {roomlist: availableRooms, clientNumList: clientNumList};
+
+        io.sockets.in(room_id).emit('msgAlert', name + '님이 입장했습니다.',""+room_id);//자신포함 전체 룸안의 유저
+        io.sockets.emit('broadcast',roomListObj);
+
+    });
+
+    socket.on('sendMsg', function (data) {
+        io.sockets.in(room_id).emit('msgAlert', data,""+room_id);//자신포함 전체 룸안의 유저
+
+        // socket.broadcast.to(room_id).emit('msgAlert',data); //자신 제외 룸안의 유저
+        //socket.in(room_id).emit('msgAlert',data); //broadcast 동일하게 가능 자신 제외 룸안의 유저
+        // io.of('namespace').in(room_id).emit('msgAlert', data) //of 지정된 name space의 유저의 룸
+    });
+
+    socket.on('disconnect', function () {
+
+        TestModel.findOne({keyword: room_id, name: socket.nick}).remove().exec();
+
+        socket.leave(room_id);//룸퇴장
+
+        var availableRooms = [];
+        var clientNumList = [];
+        var rooms = io.sockets.adapter.rooms;
+        if (rooms) {
+            for (var room in rooms) {
+                if (room !== socket.id && (room + "").length < 10) {
+                    availableRooms.push(room);
+                    clientNumList.push(rooms[room].length);
+                }
+            }
+        }
+        roomListObj = {roomlist: availableRooms, clientNumList: clientNumList};
+
+        io.sockets.emit('broadcast',roomListObj);
+
+
+        console.log('OUT ROOM LIST', io.sockets.adapter.rooms);
         console.log('user disconnected');
     });
-    socket.on('chat message', function(msg){
-        console.log('message: ' + msg);
-    });
-    socket.on('chat message', function(msg){
-        io.emit('chat message', msg);
-    });
-});
 
+});
 
 
 /**
@@ -52,19 +109,19 @@ io.on('connection', function(socket){
  */
 
 function normalizePort(val) {
-  var port = parseInt(val, 10);
+    var port = parseInt(val, 10);
 
-  if (isNaN(port)) {
-    // named pipe
-    return val;
-  }
+    if (isNaN(port)) {
+        // named pipe
+        return val;
+    }
 
-  if (port >= 0) {
-    // port number
-    return port;
-  }
+    if (port >= 0) {
+        // port number
+        return port;
+    }
 
-  return false;
+    return false;
 }
 
 /**
@@ -72,27 +129,27 @@ function normalizePort(val) {
  */
 
 function onError(error) {
-  if (error.syscall !== 'listen') {
-    throw error;
-  }
+    if (error.syscall !== 'listen') {
+        throw error;
+    }
 
-  var bind = typeof port === 'string'
-    ? 'Pipe ' + port
-    : 'Port ' + port;
+    var bind = typeof port === 'string'
+        ? 'Pipe ' + port
+        : 'Port ' + port;
 
-  // handle specific listen errors with friendly messages
-  switch (error.code) {
-    case 'EACCES':
-      console.error(bind + ' requires elevated privileges');
-      process.exit(1);
-      break;
-    case 'EADDRINUSE':
-      console.error(bind + ' is already in use');
-      process.exit(1);
-      break;
-    default:
-      throw error;
-  }
+    // handle specific listen errors with friendly messages
+    switch (error.code) {
+        case 'EACCES':
+            console.error(bind + ' requires elevated privileges');
+            process.exit(1);
+            break;
+        case 'EADDRINUSE':
+            console.error(bind + ' is already in use');
+            process.exit(1);
+            break;
+        default:
+            throw error;
+    }
 }
 
 /**
@@ -100,9 +157,9 @@ function onError(error) {
  */
 
 function onListening() {
-  var addr = server.address();
-  var bind = typeof addr === 'string'
-    ? 'pipe ' + addr
-    : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+    var addr = server.address();
+    var bind = typeof addr === 'string'
+        ? 'pipe ' + addr
+        : 'port ' + addr.port;
+    debug('Listening on ' + bind);
 }

@@ -7,59 +7,157 @@
 <link href="./bootstrap-3.3.7-dist/css/bootstrap.css" rel="stylesheet">
 
 <head>
-  <title><%= title %></title>
-  <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font: 13px Helvetica, Arial; }
-    form { background: #000; padding: 3px; position: fixed; bottom: 0; width: 100%; }
-    form input { border: 0; padding: 10px; width: 90%; margin-right: .5%; }
-    form button { width: 9%; background: rgb(130, 224, 255); border: none; padding: 10px; }
-    #messages { list-style-type: none; margin: 0; padding: 0; }
-    #messages li { padding: 5px 10px; }
-    #messages li:nth-child(odd) { background: #eee; }
-  </style>
+    <title><%= title %></title>
+
+    <style>
+
+        form {
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 50%;
+            margin: 30px 15%
+        }
+
+        #messages {
+            list-style-type: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        #messages li {
+            padding: 5px 10px;
+        }
+
+        #messages li:nth-child(odd) {
+            background: #eee;
+        }
+
+        .container {
+            width: 70%;
+            margin-left: 20%;
+        }
+
+        .sidebar {
+            border-radius: 20px;
+            position: fixed;
+            width: 200px;
+            height: 55%;
+            margin-top: 100px;
+            margin-left: 30px;
+            background: #e0e0e0;
+            overflow-x: hidden;
+            overflow-y: auto;
+        }
+
+        .sidebar-brand {
+            color: white;
+            font-size: 100%;
+        }
+
+        .sidebar-nav {
+            width: 220px;
+            margin: 0;
+            padding: 0;
+            list-style: none;
+        }
+
+        .sidebar-nav li {
+            border-bottom: 1px solid white;
+            text-indent: 1.0em;
+            line-height: 2.8em;
+        }
+
+    </style>
+
 </head>
+
 <body>
+
+<div class="sidebar">
+    <ul class="sidebar-nav">
+        <li class="sidebar-brand">
+            <div class="row">
+                <div class="col-md-5">키워드</div>
+                <div class="col-md-5">활동인원</div>
+            </div>
+        </li>
+        <li>
+
+            <div id="roomList">
+            </div>
+
+        </li>
+    </ul>
+</div>
+
 
 <div class="container">
 
-  <div class="row">
-    <div class="col-lg-5">
+    현재 방 : <%= keyword %>
+    <br/>
+    현재 인원 : <span id="num">1</span>
 
-      <input type="text" class="form-control">
+    <br><br>
+
+    <div class="row">
+
+        <ul id="messages"></ul>
+
+        <form id="messageForm" action="">
+            <input style=" padding: 10px; width: 80%;" id="m" autocomplete="off"/>
+            <button class="btn btn-default" style="padding: 10px; width: 18%;">Send</button>
+        </form>
+
     </div>
-    <div class="col-lg-3">
-
-      <input type="submit" id="login" tabindex='3' value='로그인' class="btn btn-default">
-    </div>
-
-  </div>
-
-  <div class="row">
-
-    <ul id="messages"></ul>
-    <form action="">
-      <input id="m" autocomplete="off" /><button>Send</button>
-    </form>
-  </div>
 
 </div>
 
 <script>
-    var name = 'joju';
+    var name = '<%= nickname %>';
+    var keyWord = '<%= keyword %>';
 
     $(function () {
-        var socket = io.connect("http://localhost:9000");
+        $("#m").focus();
+        var socket = io.connect("http://codeline.kr:9000");
+        socket.emit('joinRoom', keyWord, name);
 
-        $('form').submit(function() {
-            socket.emit('chat message', name + ' : ' + $('#m').val());
-            $('#m').val('');
-            return false;
+        socket.on('broadcast', function (roomInfoObj) {
+
+            var roomarray = roomInfoObj['roomlist'];
+            var clientNumList = roomInfoObj['clientNumList'];
+
+            $("#roomList").html('');
+
+            var i = 0;
+            for (var room in roomarray) {
+                var html = '' +
+                    '<a href="/chat?keyWord=' + roomarray[room] + '&username=' + name + '">' +
+                    '<div class="row" style="border-bottom:1px solid white">' +
+                    '   <div class="col-md-5">' + roomarray[room] + '</div>' +
+                    '   <div class="col-md-5" id="userNum">' + clientNumList[room] + '</div>' +
+                    '</div>' +
+                    '</a>';
+                $("#roomList").append(html);
+
+                if (roomarray[room] == keyWord) {
+                    $("#num").html(clientNumList[room]);
+                }
+                i++;
+            }
+
         });
-        socket.on('chat message', function(msg){
+        socket.on('msgAlert', function (msg, room_id) {
             $('#messages').append($('<li>').text(msg));
         });
 
+        $('#messageForm').submit(function () {
+            if ($('#m').val() != '') {
+                socket.emit('sendMsg', name + ' : ' + $('#m').val());
+                $('#m').val('');
+            }
+            return false;
+        });
 
     });
 
